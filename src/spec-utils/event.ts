@@ -10,31 +10,35 @@ export interface Event<T> {
 }
 
 export class NodeEventEmitter<T> {
+  static MAX_EVENT_LISTENERS = 100;
 
-	private nodeEmitter = new EventEmitter();
+  private nodeEmitter = new EventEmitter();
 
-	constructor(private register?: { on: () => void; off: () => void }) { }
-	event: Event<T> = (listener: (e: T) => void): Disposable => {
-		this.nodeEmitter.on('event', listener);
-		if (this.register && this.nodeEmitter.listenerCount('event') === 1) {
-			this.register.on();
-		}
-		return {
-			dispose: () => {
-				if (this.register && this.nodeEmitter.listenerCount('event') === 1) {
-					this.register.off();
-				}
-				this.nodeEmitter.off('event', listener);
-			}
-		};
-	};
+  constructor(private register?: { on: () => void; off: () => void }) {
+    this.nodeEmitter.setMaxListeners(MAX_EVENT_LISTENERS);
+  }
 
-	fire(data: T) {
-		this.nodeEmitter.emit('event', data);
-	}
-	dispose() {
-		this.nodeEmitter.removeAllListeners();
-	}
+  event: Event<T> = (listener: (e: T) => void): Disposable => {
+    this.nodeEmitter.on("event", listener);
+    if (this.register && this.nodeEmitter.listenerCount("event") === 1) {
+      this.register.on();
+    }
+    return {
+      dispose: () => {
+        if (this.register && this.nodeEmitter.listenerCount("event") === 1) {
+          this.register.off();
+        }
+        this.nodeEmitter.off("event", listener);
+      },
+    };
+  };
+
+  fire(data: T) {
+    this.nodeEmitter.emit("event", data);
+  }
+  dispose() {
+    this.nodeEmitter.removeAllListeners();
+  }
 }
 
 export interface Disposable {
