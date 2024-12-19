@@ -15,7 +15,7 @@ export class NodeEventEmitter<T> {
   private nodeEmitter = new EventEmitter();
 
   constructor(private register?: { on: () => void; off: () => void }) {
-    this.nodeEmitter.setMaxListeners(MAX_EVENT_LISTENERS);
+    this.nodeEmitter.setMaxListeners(NodeEventEmitter.MAX_EVENT_LISTENERS);
   }
 
   event: Event<T> = (listener: (e: T) => void): Disposable => {
